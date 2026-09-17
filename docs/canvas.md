@@ -40,29 +40,39 @@ Em duas frases, sem jargão técnico:
 | 4 | | | |
 | 5 | | | |
 
+
 ## 5. Fora do escopo
 
-O que **não** faremos nesta versão, e por quê:
+O que **não faremos** nesta versão, e por quê:
 
-| Não faremos | Por quê |
-|---|---|
-| | |
+| Não faremos                                    | Por quê                                                                                             |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Compra ou pagamento de passagens               | Não faz parte do objetivo principal do projeto.                                                     |
+| Controle financeiro das empresas de transporte | O foco do sistema é o acompanhamento dos ônibus e das rotas.                                        |
+| Manutenção física dos ônibus                   | O sistema será responsável apenas pelo acompanhamento e gerenciamento das informações dos veículos. |
+| Aplicativo mobile                              | Nesta primeira versão, será desenvolvida uma plataforma web.                                        |
+| Rastreamento de outros tipos de veículos       | O projeto será focado no acompanhamento de ônibus públicos e escolares.                             |
 
 ## 6. Usuários e papéis
 
-| Papel | O que pode fazer |
-|---|---|
-| | |
+| Papel                         | O que pode fazer                                                                 |
+| ----------------------------- | -------------------------------------------------------------------------------- |
+| Estudante                     | Consultar o ônibus escolar, sua rota, localização e previsão de chegada.         |
+| Usuário do transporte público | Consultar linhas, rotas, localização do ônibus e previsão de chegada.            |
+| Responsável                   | Acompanhar informações sobre o transporte escolar e o deslocamento do estudante. |
+| Escola/Empresa de transporte  | Visualizar ônibus, rotas e veículos em operação.                                 |
+| Administrador                 | Cadastrar e gerenciar usuários, ônibus, rotas e informações do sistema.          |
 
 ## 7. Restrições
 
-| Tipo | Restrição |
-|---|---|
-| Prazo | Semana 18 |
-| Equipe | `<N>` pessoas, `<X>` h/semana no total |
-| Técnica | TypeScript (NestJS + React), PostgreSQL, PaaS gratuita |
-| Contexto de uso | `<equipamento, conexão e local onde o sistema será usado>` |
-| Orçamento | `<R$ ou "zero">` |
+| Tipo            | Restrição                                                          |
+| --------------- | ------------------------------------------------------------------ |
+| Prazo           | Semana 18                                                          |
+| Equipe          | 3 pessoas,  8h/semana no total                             |
+| Técnica         | TypeScript (NestJS + React), PostgreSQL, PaaS gratuita             |
+| Contexto de uso | Sistema utilizado por computador ou celular com acesso à internet. |
+| Orçamento       | Zero, utilizando ferramentas e serviços gratuitos.                 |
+
 
 ## 8. Riscos principais
 
