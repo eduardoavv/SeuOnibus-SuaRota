@@ -76,19 +76,30 @@ O que **não faremos** nesta versão, e por quê:
 
 ## 8. Riscos principais
 
-| Risco | O que faremos |
-|---|---|
-| | |
+**Risco** | **O que faremos**
+Localização do ônibus apresentar erro | Atualizar a localização periodicamente e informar quando estiver desatualizada.
+Falha de internet | Exibir a última localização registrada enquanto aguarda nova atualização.
+Previsão de chegada imprecisa | Atualizar a estimativa conforme a localização e o andamento da rota.
+Dificuldade de integração com RFID/GPS | Utilizar dados simulados no MVP.
+
 
 ## 9. Critérios de sucesso
 
-| Objetivo | Como mediremos | Meta |
-|---|---|---|
-| | | |
+Objetivo: Acompanhar os ônibus em tempo real
+Como mediremos: Teste da localização dos ônibus no mapa
+Meta: 100% dos ônibus cadastrados visíveis
+
+Objetivo: Informar o horário previsto de chegada
+Como mediremos: Teste das previsões de chegada nas rotas
+Meta: Previsão disponível para todas as rotas ativas
+
+Objetivo: Facilitar o acompanhamento pelo usuário
+Como mediremos: Testes de uso com usuários
+Meta: Usuário conseguir localizar o ônibus e consultar a previsão sem auxílio
 
 ## 10. O que fica depois
 
-- **Quem opera o sistema:**
-- **Quem mantém tecnicamente:**
-- **Custo mensal estimado:**
-- **Licença do código:**
+Quem opera o sistema: Escola, empresa de transporte ou órgão responsável pelo transporte.
+Quem mantém tecnicamente: Equipe responsável pelo desenvolvimento do sistema.
+Custo mensal estimado: Zero no MVP, utilizando serviços gratuitos.
+Licença do código: A definir pela equipe.
