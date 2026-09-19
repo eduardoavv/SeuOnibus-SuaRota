@@ -1,45 +1,50 @@
 # Canvas do Projeto
 
-> Preencha em **uma página**. Se não couber, o escopo está grande demais.
-> Etapa 1 · Substitua os textos entre `<>`.
+**Projeto:** `Seu ônibus, sua rota` · **Equipe:** `Eduardo Artur, Emerson Sousa, Marjory Leticia` · **Data:** `2026-09-18`
 
-**Projeto:** `<nome>` · **Equipe:** `<integrantes>` · **Data:** `<AAAA-MM-DD>`
-**Organização parceira:** `<nome da organização>`
+**Organização parceira:** `Transporte escolar municipal`
 
 ---
 
 ## 1. Problema
 
-> Na `<organização>`, `<quem>` precisa `<fazer o quê>`, mas hoje `<como é feito>`, o que
-> causa `<qual consequência>`.
+Na gestão do transporte escolar e público, os usuários precisam saber se o ônibus já passou ou está próximo do ponto de embarque, mas atualmente essa comunicação é feita por grupos de WhatsApp, onde nem todos os usuários têm acesso ou recebem as informações em tempo real.
 
-**Evidências de que o problema existe** (dados, falas, observação):
+Isso causa falta de informação, insegurança e dificuldades para os usuários planejarem seu deslocamento.
 
--
--
+**Evidências de que o problema existe:**
+- Dependência de grupos de WhatsApp para comunicação
+- Usuários sem acesso ficam sem informações
+- Dificuldade de saber se o ônibus já passou no ponto X
+
+---
 
 ## 2. Quem é afetado
 
 | Quem | Quantas pessoas | Como é afetado hoje |
 |---|---|---|
-| | | |
+| Alunos | ~500 | Podem perder o ônibus ou ficar sem informação sobre chegada |
+| Usuários do transporte público | variável | Não conseguem acompanhar a localização do ônibus em tempo real |
+
+---
 
 ## 3. Solução proposta
 
-Em duas frases, sem jargão técnico:
+Uma aplicação web que permite aos usuários acompanhar em tempo real a localização do ônibus, verificar sua rota e saber se ele já passou ou está próximo do ponto de embarque.
 
->
+O sistema também ajudará na organização do deslocamento e redução da incerteza sobre horários.
+
+---
 
 ## 4. Funcionalidades do MVP (3 a 5)
 
 | # | Funcionalidade | Para quem | Por que é essencial |
 |---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-
+| 1 | Visualizar localização do ônibus em tempo real | Usuários | Permite acompanhar o deslocamento |
+| 2 | Visualizar rota do ônibus | Usuários | Ajuda no planejamento do embarque |
+| 3 | Verificar status do ônibus (perto / passou / distante) | Usuários | Reduz incerteza sobre o ponto |
+| 4 | Alertas de possível atraso | Usuários | Ajuda na organização do tempo |
+| 5 | Estimativa de tempo até o ponto | Usuários | Facilita planejamento do deslocamento |
 
 ## 5. Fora do escopo
 
