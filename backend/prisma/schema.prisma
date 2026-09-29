@@ -14,3 +14,10 @@ model Onibus {
   modelo            String
   status            String
 }
+
+model Parada {
+  id        Int    @id @default(autoincrement())
+  nome      String
+  latitude  Float
+  longitude Float
+}
