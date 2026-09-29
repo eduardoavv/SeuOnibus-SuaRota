@@ -4,7 +4,7 @@ import { UpdateRotasDto } from './dto/update-rotas.dto';
 
 @Injectable()
 export class RotasService {
-  private rotas = [];
+  private rotas: any[] = [];
   private id = 1;
 
   create(data: CreateRotasDto) {
