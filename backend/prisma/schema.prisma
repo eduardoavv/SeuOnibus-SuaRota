@@ -1,10 +1,19 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Rota {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  descricao String?
+
+  onibus    Onibus[]
+  paradas   Parada[]
 }
 
 model Onibus {
@@ -13,6 +22,9 @@ model Onibus {
   identificacaoRFID String @unique
   modelo            String
   status            String
+  
+  rotaId            Int?
+  rota              Rota?  @relation(fields: [rotaId], references: [id], onDelete: SetNull)
 }
 
 model Parada {
@@ -20,4 +32,7 @@ model Parada {
   nome      String
   latitude  Float
   longitude Float
+
+  rotaId    Int?
+  rota      Rota?  @relation(fields: [rotaId], references: [id], onDelete: SetNull)
 }

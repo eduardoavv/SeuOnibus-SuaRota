@@ -1,42 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRotasDto } from './dto/create-rotas.dto';
-import { UpdateRotasDto } from './dto/update-rotas.dto';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { CreateRotasDto } from './dto/create-rotas.dto.js';
+import { UpdateRotasDto } from './dto/update-rotas.dto.js';
 
+// ... resto do código continua igual
 @Injectable()
 export class RotasService {
-  private rotas: any[] = [];
-  private id = 1;
+  constructor(private readonly prisma: PrismaService) {}
 
   create(data: CreateRotasDto) {
-    const rota = { id: this.id++, ...data };
-    this.rotas.push(rota);
-    return rota;
+    return this.prisma.rota.create({
+      data,
+    });
   }
 
   findAll() {
-    return this.rotas;
+    return this.prisma.rota.findMany();
   }
 
   findOne(id: number) {
-    return this.rotas.find(r => r.id === id);
+    return this.prisma.rota.findUnique({
+      where: { id },
+    });
   }
 
   update(id: number, data: UpdateRotasDto) {
-    const index = this.rotas.findIndex(r => r.id === id);
-
-    if (index === -1) return null;
-
-    this.rotas[index] = {
-      ...this.rotas[index],
-      ...data,
-    };
-
-    return this.rotas[index];
+    return this.prisma.rota.update({
+      where: { id },
+      data,
+    });
   }
 
   remove(id: number) {
-    const rota = this.rotas.find(r => r.id === id);
-    this.rotas = this.rotas.filter(r => r.id !== id);
-    return rota;
+    return this.prisma.rota.delete({
+      where: { id },
+    });
   }
 }

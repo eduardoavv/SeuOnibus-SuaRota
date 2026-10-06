@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service.js';
 
-import { CreateParadaDto } from './dto/create-parada.dto';
-import { UpdateParadaDto } from './dto/update-parada.dto';
+import { CreateParadaDto } from './dto/create-parada.dto.js';
+import { UpdateParadaDto } from './dto/update-parada.dto.js';
 
 @Injectable()
 export class ParadasService {

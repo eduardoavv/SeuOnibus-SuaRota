@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { ParadasController } from './paradas.controller';
+import { ParadasController } from './paradas.controller.js';
 
-import { ParadasService } from './paradas.service';
+import { ParadasService } from './paradas.service.js';
 
-import { PrismaModule } from '../prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module.js';
 
 @Module({
   imports: [PrismaModule],

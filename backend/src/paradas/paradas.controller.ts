@@ -8,9 +8,9 @@ import {
     Put,
   } from '@nestjs/common';
   
-  import { ParadasService } from './paradas.service';
-  import { CreateParadaDto } from './dto/create-parada.dto';
-  import { UpdateParadaDto } from './dto/update-parada.dto';
+  import { ParadasService } from './paradas.service.js';
+  import { CreateParadaDto } from './dto/create-parada.dto.js';
+  import { UpdateParadaDto } from './dto/update-parada.dto.js';
   
   @Controller('paradas')
   export class ParadasController {
