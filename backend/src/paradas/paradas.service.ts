@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 import { CreateParadaDto } from './dto/create-parada.dto.js';
@@ -13,9 +14,15 @@ export class ParadasService {
   }
 
   async findOne(id: number) {
-    return this.prisma.parada.findUnique({
+    const parada = await this.prisma.parada.findUnique({
       where: { id },
     });
+
+    if (!parada) {
+      throw new NotFoundException('Parada não encontrada');
+    }
+
+    return parada;
   }
 
   async create(data: CreateParadaDto) {
@@ -25,6 +32,8 @@ export class ParadasService {
   }
 
   async update(id: number, data: UpdateParadaDto) {
+    await this.findOne(id);
+
     return this.prisma.parada.update({
       where: { id },
       data,
@@ -32,6 +41,8 @@ export class ParadasService {
   }
 
   async remove(id: number) {
+    await this.findOne(id);
+
     return this.prisma.parada.delete({
       where: { id },
     });
