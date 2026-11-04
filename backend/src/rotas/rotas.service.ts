@@ -1,37 +1,47 @@
-import { Injectable } from '@nestjs/common';
+
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateRotasDto } from './dto/create-rotas.dto.js';
 import { UpdateRotasDto } from './dto/update-rotas.dto.js';
 
-// ... resto do código continua igual
 @Injectable()
 export class RotasService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(data: CreateRotasDto) {
+  async create(data: CreateRotasDto) {
     return this.prisma.rota.create({
       data,
     });
   }
 
-  findAll() {
+  async findAll() {
     return this.prisma.rota.findMany();
   }
 
-  findOne(id: number) {
-    return this.prisma.rota.findUnique({
+  async findOne(id: number) {
+    const rota = await this.prisma.rota.findUnique({
       where: { id },
     });
+
+    if (!rota) {
+      throw new NotFoundException('Rota não encontrada');
+    }
+
+    return rota;
   }
 
-  update(id: number, data: UpdateRotasDto) {
+  async update(id: number, data: UpdateRotasDto) {
+    await this.findOne(id);
+
     return this.prisma.rota.update({
       where: { id },
       data,
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    await this.findOne(id);
+
     return this.prisma.rota.delete({
       where: { id },
     });
