@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 
 import { ParadasService } from './paradas.service.js';
@@ -19,8 +20,12 @@ export class ParadasController {
   constructor(private readonly paradasService: ParadasService) {}
 
   @Get()
-  findAll() {
-    return this.paradasService.findAll();
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('nome') nome?: string,
+  ) {
+    return this.paradasService.findAll({ page, limit, nome });
   }
 
   @Get(':id')
