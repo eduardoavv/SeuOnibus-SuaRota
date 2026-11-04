@@ -1,4 +1,5 @@
 
+
 import {
   Body,
   Controller,
@@ -8,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 
 import { RotasService } from './rotas.service.js';
@@ -24,8 +26,16 @@ export class RotasController {
   }
 
   @Get()
-  findAll() {
-    return this.rotasService.findAll();
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('nome') nome?: string,
+  ) {
+    return this.rotasService.findAll({
+      page,
+      limit,
+      nome,
+    });
   }
 
   @Get(':id')
