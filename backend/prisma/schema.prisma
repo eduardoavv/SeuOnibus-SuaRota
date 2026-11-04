@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,9 +24,11 @@ model Onibus {
   identificacaoRFID String @unique
   modelo            String
   status            String
-  
+
   rotaId            Int?
   rota              Rota?  @relation(fields: [rotaId], references: [id], onDelete: SetNull)
+
+  localizacoes      Localizacao[]
 }
 
 model Parada {
@@ -36,4 +39,16 @@ model Parada {
 
   rotaId    Int?
   rota      Rota?  @relation(fields: [rotaId], references: [id], onDelete: SetNull)
+}
+
+model Localizacao {
+  id           Int      @id @default(autoincrement())
+  latitude     Float
+  longitude    Float
+  registradaEm DateTime @default(now())
+
+  onibusId     Int
+  onibus       Onibus   @relation(fields: [onibusId], references: [id], onDelete: Cascade)
+
+  @@index([onibusId, registradaEm])
 }
