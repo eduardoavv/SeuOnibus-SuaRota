@@ -1,3 +1,4 @@
+
 import {
   Body,
   Controller,
@@ -7,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
 import { OnibusService } from './onibus.service.js';
@@ -23,8 +25,18 @@ export class OnibusController {
   }
 
   @Get()
-  findAll() {
-    return this.onibusService.findAll();
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('status') status?: string,
+    @Query('placa') placa?: string,
+  ) {
+    return this.onibusService.findAll({
+      page,
+      limit,
+      status,
+      placa,
+    });
   }
 
   @Get(':id')

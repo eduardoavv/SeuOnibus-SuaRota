@@ -1,16 +1,56 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Rota {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  descricao String?
+  onibus    Onibus[]
+  paradas   Parada[]
 }
 
 model Onibus {
-  id                Int    @id @default(autoincrement())
-  placa             String @unique
-  identificacaoRFID String @unique
+  id                Int           @id @default(autoincrement())
+  placa             String        @unique
+  identificacaoRFID String        @unique
   modelo            String
   status            String
+  rotaId            Int?
+  localizacoes      Localizacao[]
+  rota              Rota?         @relation(fields: [rotaId], references: [id])
+}
+
+model Parada {
+  id        Int    @id @default(autoincrement())
+  nome      String
+  latitude  Float
+  longitude Float
+  rotaId    Int?
+  rota      Rota?  @relation(fields: [rotaId], references: [id])
+}
+
+model Localizacao {
+  id           Int      @id @default(autoincrement())
+  latitude     Float
+  longitude    Float
+  registradaEm DateTime @default(now())
+  onibusId     Int
+  onibus       Onibus   @relation(fields: [onibusId], references: [id], onDelete: Cascade)
+
+  @@index([onibusId, registradaEm])
+}
+
+model Usuario {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  email String @unique
+  senha String
+  tipo  String
 }

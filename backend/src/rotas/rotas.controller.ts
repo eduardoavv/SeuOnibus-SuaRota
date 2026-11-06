@@ -1,0 +1,58 @@
+
+
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+
+import { RotasService } from './rotas.service.js';
+import { CreateRotasDto } from './dto/create-rotas.dto.js';
+import { UpdateRotasDto } from './dto/update-rotas.dto.js';
+
+@Controller('rotas')
+export class RotasController {
+  constructor(private readonly rotasService: RotasService) {}
+
+  @Post()
+  create(@Body() body: CreateRotasDto) {
+    return this.rotasService.create(body);
+  }
+
+  @Get()
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('nome') nome?: string,
+  ) {
+    return this.rotasService.findAll({
+      page,
+      limit,
+      nome,
+    });
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.rotasService.findOne(id);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateRotasDto,
+  ) {
+    return this.rotasService.update(id, body);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.rotasService.remove(id);
+  }
+}
