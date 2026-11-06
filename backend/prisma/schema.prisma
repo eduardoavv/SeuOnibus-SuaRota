@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,22 +12,19 @@ model Rota {
   id        Int      @id @default(autoincrement())
   nome      String
   descricao String?
-
   onibus    Onibus[]
   paradas   Parada[]
 }
 
 model Onibus {
-  id                Int    @id @default(autoincrement())
-  placa             String @unique
-  identificacaoRFID String @unique
+  id                Int           @id @default(autoincrement())
+  placa             String        @unique
+  identificacaoRFID String        @unique
   modelo            String
   status            String
-
   rotaId            Int?
-  rota              Rota?  @relation(fields: [rotaId], references: [id], onDelete: SetNull)
-
   localizacoes      Localizacao[]
+  rota              Rota?         @relation(fields: [rotaId], references: [id])
 }
 
 model Parada {
@@ -36,9 +32,8 @@ model Parada {
   nome      String
   latitude  Float
   longitude Float
-
   rotaId    Int?
-  rota      Rota?  @relation(fields: [rotaId], references: [id], onDelete: SetNull)
+  rota      Rota?  @relation(fields: [rotaId], references: [id])
 }
 
 model Localizacao {
@@ -46,9 +41,16 @@ model Localizacao {
   latitude     Float
   longitude    Float
   registradaEm DateTime @default(now())
-
   onibusId     Int
   onibus       Onibus   @relation(fields: [onibusId], references: [id], onDelete: Cascade)
 
   @@index([onibusId, registradaEm])
+}
+
+model Usuario {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  email String @unique
+  senha String
+  tipo  String
 }
