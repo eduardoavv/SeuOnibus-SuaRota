@@ -10,6 +10,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { UsuariosModule } from './usuarios/usuarios.module.js';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AppService } from './app.service.js';
     ParadasModule,
     RotasModule,
     LocalizacaoModule,
+    UsuariosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
