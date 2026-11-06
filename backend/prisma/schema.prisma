@@ -7,13 +7,24 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
+enum StatusOnibus {
+  ATIVO
+  INATIVO
+  MANUTENCAO
+}
 
+enum TipoUsuario {
+  ALUNO
+  RESPONSAVEL
+  ADMIN
+}
 model Rota {
   id        Int      @id @default(autoincrement())
   nome      String
   descricao String?
   onibus    Onibus[]
   paradas   Parada[]
+  favoritas UsuarioFavoritaRota[] // Nova relação
 }
 
 model Onibus {
@@ -21,11 +32,21 @@ model Onibus {
   placa             String        @unique
   identificacaoRFID String        @unique
   modelo            String
-  status            String
+  status            StatusOnibus  @default(ATIVO) // Atualizado para Enum
   rotaId            Int?
   localizacoes      Localizacao[]
-  rota              Rota?         @relation(fields: [rotaId], references: [id])
+  rota              Rota?         @relation(fields: [rotaId], references: [id], onDelete: SetNull)
 }
+
+model Usuario {
+  id        String    @id @default(uuid()) // Atualizado para UUID
+  nome      String
+  email     String    @unique
+  senha     String
+  tipo      TipoUsuario @default(ALUNO) // Atualizado para Enum
+  rotasFavoritas UsuarioFavoritaRota[] // Nova relação
+}
+
 
 model Parada {
   id        Int    @id @default(autoincrement())
@@ -47,10 +68,14 @@ model Localizacao {
   @@index([onibusId, registradaEm])
 }
 
-model Usuario {
-  id    Int    @id @default(autoincrement())
-  nome  String
-  email String @unique
-  senha String
-  tipo  String
+model UsuarioFavoritaRota {
+  usuarioId      String
+  rotaId         Int
+  notificarAtraso Boolean  @default(true)
+  criadoEm       DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  rota    Rota    @relation(fields: [rotaId], references: [id], onDelete: Cascade)
+
+  @@id([usuarioId, rotaId]) // Índice composto exigido na rubrica
 }
