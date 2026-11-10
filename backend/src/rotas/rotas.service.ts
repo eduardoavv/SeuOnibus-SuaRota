@@ -1,4 +1,5 @@
 
+
 import {
   Injectable,
   NotFoundException,
@@ -45,6 +46,7 @@ export class RotasService {
       ? {
           nome: {
             contains: filtros.nome,
+            mode: 'insensitive' as const,
           },
         }
       : {};
@@ -56,7 +58,15 @@ export class RotasService {
         where,
         skip,
         take: limit,
+        include: {
+          onibus: true,
+          paradas: true,
+        },
+        orderBy: {
+          id: 'asc',
+        },
       }),
+
       this.prisma.rota.count({ where }),
     ]);
 
