@@ -1,11 +1,13 @@
-import { Module } from '@nestjs/common';
 
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { Onibus } from '../database/entities/onibus.entity.js';
 import { OnibusController } from './onibus.controller.js';
 import { OnibusService } from './onibus.service.js';
-import { PrismaModule } from '../prisma/prisma.module.js';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [TypeOrmModule.forFeature([Onibus])],
   controllers: [OnibusController],
   providers: [OnibusService],
 })

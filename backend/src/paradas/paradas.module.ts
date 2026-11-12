@@ -1,13 +1,13 @@
+
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { Parada } from '../database/entities/parada.entity.js';
 import { ParadasController } from './paradas.controller.js';
-
 import { ParadasService } from './paradas.service.js';
 
-import { PrismaModule } from '../prisma/prisma.module.js';
-
 @Module({
-  imports: [PrismaModule],
+  imports: [TypeOrmModule.forFeature([Parada])],
   controllers: [ParadasController],
   providers: [ParadasService],
 })

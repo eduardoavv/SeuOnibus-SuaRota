@@ -1,4 +1,7 @@
+
 import { IsNotEmpty, IsString, IsIn } from 'class-validator';
+
+import { StatusOnibus } from '../../database/entities/enums.js';
 
 export class CreateOnibusDto {
   @IsNotEmpty()
@@ -15,6 +18,6 @@ export class CreateOnibusDto {
 
   @IsNotEmpty()
   @IsString()
-  @IsIn(['ATIVO', 'INATIVO'])
-  status: string;
+  @IsIn(Object.values(StatusOnibus))
+  status: StatusOnibus;
 }

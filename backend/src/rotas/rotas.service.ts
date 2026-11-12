@@ -1,12 +1,13 @@
 
-
 import {
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ILike, Repository } from 'typeorm';
 
-import { PrismaService } from '../prisma/prisma.service.js';
+import { Rota } from '../database/entities/rota.entity.js';
 import { CreateRotasDto } from './dto/create-rotas.dto.js';
 import { UpdateRotasDto } from './dto/update-rotas.dto.js';
 
@@ -18,12 +19,14 @@ interface FiltrosRotas {
 
 @Injectable()
 export class RotasService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @InjectRepository(Rota)
+    private readonly rotaRepository: Repository<Rota>,
+  ) {}
 
   async create(data: CreateRotasDto) {
-    return this.prisma.rota.create({
-      data,
-    });
+    const rota = this.rotaRepository.create(data);
+    return this.rotaRepository.save(rota);
   }
 
   async findAll(filtros: FiltrosRotas = {}) {
@@ -43,35 +46,22 @@ export class RotasService {
     }
 
     const where = filtros.nome
-      ? {
-          nome: {
-            contains: filtros.nome,
-            mode: 'insensitive' as const,
-          },
-        }
+      ? { nome: ILike(`%${filtros.nome}%`) }
       : {};
 
-    const skip = (page - 1) * limit;
-
-    const [rotas, total] = await Promise.all([
-      this.prisma.rota.findMany({
-        where,
-        skip,
-        take: limit,
-        include: {
-          onibus: true,
-          paradas: true,
-        },
-        orderBy: {
-          id: 'asc',
-        },
-      }),
-
-      this.prisma.rota.count({ where }),
-    ]);
+    const [dados, total] = await this.rotaRepository.findAndCount({
+      where,
+      relations: {
+        onibus: true,
+        paradas: true,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'ASC' },
+    });
 
     return {
-      dados: rotas,
+      dados,
       total,
       pagina: page,
       limite: limit,
@@ -80,9 +70,7 @@ export class RotasService {
   }
 
   async findOne(id: number) {
-    const rota = await this.prisma.rota.findUnique({
-      where: { id },
-    });
+    const rota = await this.rotaRepository.findOneBy({ id });
 
     if (!rota) {
       throw new NotFoundException('Rota não encontrada');
@@ -92,19 +80,18 @@ export class RotasService {
   }
 
   async update(id: number, data: UpdateRotasDto) {
-    await this.findOne(id);
+    const rota = await this.findOne(id);
 
-    return this.prisma.rota.update({
-      where: { id },
-      data,
-    });
+    this.rotaRepository.merge(rota, data);
+
+    return this.rotaRepository.save(rota);
   }
 
   async remove(id: number) {
-    await this.findOne(id);
+    const rota = await this.findOne(id);
 
-    return this.prisma.rota.delete({
-      where: { id },
-    });
+    await this.rotaRepository.remove(rota);
+
+    return rota;
   }
 }

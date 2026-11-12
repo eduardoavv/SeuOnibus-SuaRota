@@ -1,17 +1,17 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { UsuariosService } from './usuarios.service.js';
-import { PrismaService } from '../prisma/prisma.service.js';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+
+import { UsuariosService } from './usuarios.service.js';
+import { Usuario } from '../database/entities/usuario.entity.js';
 
 describe('UsuariosService', () => {
   let service: UsuariosService;
 
-  const prismaMock = {
-    usuario: {
-      findUnique: vi.fn(),
-    },
+  const usuarioRepositoryMock = {
+    findOneBy: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -19,13 +19,14 @@ describe('UsuariosService', () => {
       providers: [
         UsuariosService,
         {
-          provide: PrismaService,
-          useValue: prismaMock,
+          provide: getRepositoryToken(Usuario),
+          useValue: usuarioRepositoryMock,
         },
       ],
     }).compile();
 
     service = module.get<UsuariosService>(UsuariosService);
+
     vi.clearAllMocks();
   });
 
@@ -36,8 +37,8 @@ describe('UsuariosService', () => {
   it('deve retornar true quando a senha estiver correta', async () => {
     const hash = await bcrypt.hash('Senha123', 10);
 
-    prismaMock.usuario.findUnique.mockResolvedValue({
-      id: 3,
+    usuarioRepositoryMock.findOneBy.mockResolvedValue({
+      id: 'usuario-teste',
       email: 'joao.hash@email.com',
       senha: hash,
     });
@@ -53,8 +54,8 @@ describe('UsuariosService', () => {
   it('deve retornar false quando a senha estiver incorreta', async () => {
     const hash = await bcrypt.hash('Senha123', 10);
 
-    prismaMock.usuario.findUnique.mockResolvedValue({
-      id: 3,
+    usuarioRepositoryMock.findOneBy.mockResolvedValue({
+      id: 'usuario-teste',
       email: 'joao.hash@email.com',
       senha: hash,
     });
@@ -68,7 +69,7 @@ describe('UsuariosService', () => {
   });
 
   it('deve retornar false quando o usuário não existir', async () => {
-    prismaMock.usuario.findUnique.mockResolvedValue(null);
+    usuarioRepositoryMock.findOneBy.mockResolvedValue(null);
 
     const resultado = await service.verificarSenha(
       'naoexiste@email.com',

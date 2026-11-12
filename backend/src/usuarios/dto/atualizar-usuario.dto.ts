@@ -5,7 +5,10 @@ import {
   IsString,
   MinLength,
   IsNotEmpty,
+  IsIn,
 } from 'class-validator';
+
+import { TipoUsuario } from '../../database/entities/enums.js';
 
 export class AtualizarUsuarioDto {
   @IsOptional()
@@ -29,5 +32,8 @@ export class AtualizarUsuarioDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'O tipo não pode ficar vazio.' })
-  tipo?: string;
+  @IsIn(Object.values(TipoUsuario), {
+    message: 'Tipo de usuário inválido.',
+  })
+  tipo?: TipoUsuario;
 }
