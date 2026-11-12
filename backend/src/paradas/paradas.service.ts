@@ -4,8 +4,10 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ILike, Repository } from 'typeorm';
 
-import { PrismaService } from '../prisma/prisma.service.js';
+import { Parada } from '../database/entities/parada.entity.js';
 import { CreateParadaDto } from './dto/create-parada.dto.js';
 import { UpdateParadaDto } from './dto/update-parada.dto.js';
 
@@ -17,11 +19,14 @@ interface FiltrosParadas {
 
 @Injectable()
 export class ParadasService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @InjectRepository(Parada)
+    private readonly paradaRepository: Repository<Parada>,
+  ) {}
 
   async findAll(filtros: FiltrosParadas = {}) {
-    const page = Number(filtros.page) || 1;
-    const limit = Number(filtros.limit) || 10;
+    const page = Number(filtros.page ?? 1);
+    const limit = Number(filtros.limit ?? 10);
 
     if (
       !Number.isInteger(page) ||
@@ -36,23 +41,15 @@ export class ParadasService {
     }
 
     const where = filtros.nome
-      ? {
-          nome: {
-            contains: filtros.nome,
-          },
-        }
+      ? { nome: ILike(`%${filtros.nome}%`) }
       : {};
 
-    const skip = (page - 1) * limit;
-
-    const [dados, total] = await Promise.all([
-      this.prisma.parada.findMany({
-        where,
-        skip,
-        take: limit,
-      }),
-      this.prisma.parada.count({ where }),
-    ]);
+    const [dados, total] = await this.paradaRepository.findAndCount({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'ASC' },
+    });
 
     return {
       dados,
@@ -64,9 +61,7 @@ export class ParadasService {
   }
 
   async findOne(id: number) {
-    const parada = await this.prisma.parada.findUnique({
-      where: { id },
-    });
+    const parada = await this.paradaRepository.findOneBy({ id });
 
     if (!parada) {
       throw new NotFoundException('Parada não encontrada');
@@ -76,25 +71,23 @@ export class ParadasService {
   }
 
   async create(data: CreateParadaDto) {
-    return this.prisma.parada.create({
-      data,
-    });
+    const parada = this.paradaRepository.create(data);
+    return this.paradaRepository.save(parada);
   }
 
   async update(id: number, data: UpdateParadaDto) {
-    await this.findOne(id);
+    const parada = await this.findOne(id);
 
-    return this.prisma.parada.update({
-      where: { id },
-      data,
-    });
+    this.paradaRepository.merge(parada, data);
+
+    return this.paradaRepository.save(parada);
   }
 
   async remove(id: number) {
-    await this.findOne(id);
+    const parada = await this.findOne(id);
 
-    return this.prisma.parada.delete({
-      where: { id },
-    });
+    await this.paradaRepository.remove(parada);
+
+    return parada;
   }
 }

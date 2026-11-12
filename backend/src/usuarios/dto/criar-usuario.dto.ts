@@ -4,7 +4,10 @@ import {
   IsNotEmpty,
   IsString,
   MinLength,
+  IsIn,
 } from 'class-validator';
+
+import { TipoUsuario } from '../../database/entities/enums.js';
 
 export class CriarUsuarioDto {
   @IsString()
@@ -24,5 +27,8 @@ export class CriarUsuarioDto {
 
   @IsString()
   @IsNotEmpty({ message: 'O tipo de usuário é obrigatório.' })
-  tipo: string;
+  @IsIn(Object.values(TipoUsuario), {
+    message: 'Tipo de usuário inválido.',
+  })
+  tipo: TipoUsuario;
 }

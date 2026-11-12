@@ -1,12 +1,14 @@
 
-
 import {
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ILike, Repository } from 'typeorm';
 
-import { PrismaService } from '../prisma/prisma.service.js';
+import { Onibus } from '../database/entities/onibus.entity.js';
+import { StatusOnibus } from '../database/entities/enums.js';
 import { CreateOnibusDto } from './dto/create-onibus.dto.js';
 import { UpdateOnibusDto } from './dto/update-onibus.dto.js';
 
@@ -19,12 +21,18 @@ interface FiltrosOnibus {
 
 @Injectable()
 export class OnibusService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @InjectRepository(Onibus)
+    private readonly onibusRepository: Repository<Onibus>,
+  ) {}
 
-  create(createOnibusDto: CreateOnibusDto) {
-    return this.prisma.onibus.create({
-      data: createOnibusDto,
+  async create(data: CreateOnibusDto) {
+    const onibus = this.onibusRepository.create({
+      ...data,
+      status: data.status as StatusOnibus,
     });
+
+    return this.onibusRepository.save(onibus);
   }
 
   async findAll(filtros: FiltrosOnibus = {}) {
@@ -45,31 +53,31 @@ export class OnibusService {
 
     if (
       filtros.status &&
-      !['ATIVO', 'INATIVO'].includes(filtros.status)
+      !Object.values(StatusOnibus).includes(
+        filtros.status as StatusOnibus,
+      )
     ) {
       throw new BadRequestException('Status inválido.');
     }
 
     const where = {
-      ...(filtros.status ? { status: filtros.status } : {}),
+      ...(filtros.status
+        ? { status: filtros.status as StatusOnibus }
+        : {}),
       ...(filtros.placa
-        ? { placa: { contains: filtros.placa } }
+        ? { placa: ILike(`%${filtros.placa}%`) }
         : {}),
     };
 
-    const skip = (page - 1) * limit;
-
-    const [onibus, total] = await Promise.all([
-      this.prisma.onibus.findMany({
-        where,
-        skip,
-        take: limit,
-      }),
-      this.prisma.onibus.count({ where }),
-    ]);
+    const [dados, total] = await this.onibusRepository.findAndCount({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'ASC' },
+    });
 
     return {
-      dados: onibus,
+      dados,
       total,
       pagina: page,
       limite: limit,
@@ -78,9 +86,7 @@ export class OnibusService {
   }
 
   async findOne(id: number) {
-    const onibus = await this.prisma.onibus.findUnique({
-      where: { id },
-    });
+    const onibus = await this.onibusRepository.findOneBy({ id });
 
     if (!onibus) {
       throw new NotFoundException('Ônibus não encontrado');
@@ -89,20 +95,24 @@ export class OnibusService {
     return onibus;
   }
 
-  async update(id: number, updateOnibusDto: UpdateOnibusDto) {
-    await this.findOne(id);
+  async update(id: number, data: UpdateOnibusDto) {
+    const onibus = await this.findOne(id);
 
-    return this.prisma.onibus.update({
-      where: { id },
-      data: updateOnibusDto,
+    this.onibusRepository.merge(onibus, {
+      ...data,
+      ...(data.status
+        ? { status: data.status as StatusOnibus }
+        : {}),
     });
+
+    return this.onibusRepository.save(onibus);
   }
 
   async remove(id: number) {
-    await this.findOne(id);
+    const onibus = await this.findOne(id);
 
-    return this.prisma.onibus.delete({
-      where: { id },
-    });
+    await this.onibusRepository.remove(onibus);
+
+    return onibus;
   }
 }

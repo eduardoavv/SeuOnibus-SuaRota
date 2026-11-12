@@ -1,66 +1,74 @@
-
 import {
   Injectable,
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
 
-import { PrismaService } from '../prisma/prisma.service.js';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+
+import { Usuario } from '../database/entities/usuario.entity.js';
 import { CriarUsuarioDto } from './dto/criar-usuario.dto.js';
 import { AtualizarUsuarioDto } from './dto/atualizar-usuario.dto.js';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuariosService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
+  ) {}
 
   async criar(dados: CriarUsuarioDto) {
-    const usuarioExiste = await this.prisma.usuario.findUnique({
-      where: { email: dados.email },
+    const usuarioExiste = await this.usuarioRepository.findOneBy({
+      email: dados.email,
     });
 
     if (usuarioExiste) {
       throw new ConflictException('Este e-mail já está cadastrado.');
     }
+
     const senhaHash = await bcrypt.hash(dados.senha, 10);
-    return this.prisma.usuario.create({
-     data: {
+
+    const usuario = this.usuarioRepository.create({
       ...dados,
       senha: senhaHash,
-    },
-      select: {
-        id: true,
-        nome: true,
-        email: true,
-        tipo: true,
-      },
     });
+
+    const usuarioSalvo = await this.usuarioRepository.save(usuario);
+
+    return {
+      id: usuarioSalvo.id,
+      nome: usuarioSalvo.nome,
+      email: usuarioSalvo.email,
+      tipo: usuarioSalvo.tipo,
+    };
   }
+
   async verificarSenha(email: string, senha: string) {
-  const usuario = await this.prisma.usuario.findUnique({
-    where: { email },
-  });
+    const usuario = await this.usuarioRepository.findOneBy({ email });
 
-  if (!usuario) {
-    return false;
+    if (!usuario) {
+      return false;
+    }
+
+    return bcrypt.compare(senha, usuario.senha);
   }
-
-  return bcrypt.compare(senha, usuario.senha);
-}
 
   async listar() {
-    return this.prisma.usuario.findMany({
+    return this.usuarioRepository.find({
       select: {
         id: true,
         nome: true,
         email: true,
         tipo: true,
       },
+      order: { nome: 'ASC' },
     });
   }
 
   async buscarPorId(id: number) {
-    const usuario = await this.prisma.usuario.findUnique({
+    const usuario = await this.usuarioRepository.findOne({
       where: { id },
       select: {
         id: true,
@@ -77,46 +85,57 @@ export class UsuariosService {
     return usuario;
   }
 
-async atualizar(id: number, dados: AtualizarUsuarioDto) {
-  await this.buscarPorId(id);
+  async atualizar(id: number, dados: AtualizarUsuarioDto) {
+    const usuario = await this.usuarioRepository.findOneBy({ id });
 
-  if (dados.email) {
-    const emailExiste = await this.prisma.usuario.findUnique({
-      where: { email: dados.email },
-    });
-
-    if (emailExiste && emailExiste.id !== id) {
-      throw new ConflictException('Este e-mail já está cadastrado.');
+    if (!usuario) {
+      throw new NotFoundException('Usuário não encontrado.');
     }
+
+    if (dados.email) {
+      const emailExiste = await this.usuarioRepository.findOneBy({
+        email: dados.email,
+      });
+
+      if (emailExiste && emailExiste.id !== id) {
+        throw new ConflictException('Este e-mail já está cadastrado.');
+      }
+    }
+
+    if (dados.nome !== undefined) {
+      usuario.nome = dados.nome;
+    }
+
+    if (dados.email !== undefined) {
+      usuario.email = dados.email;
+    }
+
+    if (dados.tipo !== undefined) {
+      usuario.tipo = dados.tipo;
+    }
+
+    if (dados.senha) {
+      usuario.senha = await bcrypt.hash(dados.senha, 10);
+    }
+
+    const atualizado = await this.usuarioRepository.save(usuario);
+
+    return {
+      id: atualizado.id,
+      nome: atualizado.nome,
+      email: atualizado.email,
+      tipo: atualizado.tipo,
+    };
   }
-
-  const dadosAtualizados = { ...dados };
-
-  if (dadosAtualizados.senha) {
-    dadosAtualizados.senha = await bcrypt.hash(
-      dadosAtualizados.senha,
-      10,
-    );
-  }
-
-  return this.prisma.usuario.update({
-    where: { id },
-    data: dadosAtualizados,
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-      tipo: true,
-    },
-  });
-}
 
   async excluir(id: number) {
-    await this.buscarPorId(id);
+    const usuario = await this.usuarioRepository.findOneBy({ id });
 
-    await this.prisma.usuario.delete({
-      where: { id },
-    });
+    if (!usuario) {
+      throw new NotFoundException('Usuário não encontrado.');
+    }
+
+    await this.usuarioRepository.remove(usuario);
 
     return {
       mensagem: 'Usuário excluído com sucesso.',
