@@ -1,5 +1,13 @@
 
-import { IsNumber, IsOptional, IsString, Min, Max, IsNotEmpty } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  Max,
+  IsNotEmpty,
+  IsInt,
+} from 'class-validator';
 
 export class UpdateParadaDto {
   @IsOptional()
@@ -18,4 +26,9 @@ export class UpdateParadaDto {
   @Min(-180)
   @Max(180)
   longitude?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  rotaId?: number | null;
 }

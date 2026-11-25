@@ -24,8 +24,14 @@ export class ParadasController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('nome') nome?: string,
+    @Query('rotaId') rotaId?: string,
   ) {
-    return this.paradasService.findAll({ page, limit, nome });
+    return this.paradasService.findAll({
+      page,
+      limit,
+      nome,
+      rotaId,
+    });
   }
 
   @Get(':id')

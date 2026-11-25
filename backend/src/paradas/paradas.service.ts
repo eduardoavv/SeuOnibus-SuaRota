@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 
 import { Parada } from '../database/entities/parada.entity.js';
+import { Rota } from '../database/entities/rota.entity.js';
 import { CreateParadaDto } from './dto/create-parada.dto.js';
 import { UpdateParadaDto } from './dto/update-parada.dto.js';
 
@@ -15,6 +16,7 @@ interface FiltrosParadas {
   page?: string;
   limit?: string;
   nome?: string;
+  rotaId?: string;
 }
 
 @Injectable()
@@ -22,6 +24,8 @@ export class ParadasService {
   constructor(
     @InjectRepository(Parada)
     private readonly paradaRepository: Repository<Parada>,
+    @InjectRepository(Rota)
+    private readonly rotaRepository: Repository<Rota>,
   ) {}
 
   async findAll(filtros: FiltrosParadas = {}) {
@@ -40,9 +44,28 @@ export class ParadasService {
       );
     }
 
-    const where = filtros.nome
-      ? { nome: ILike(`%${filtros.nome}%`) }
-      : {};
+    let rotaId: number | undefined;
+
+    if (filtros.rotaId !== undefined && filtros.rotaId !== '') {
+      rotaId = Number(filtros.rotaId);
+
+      if (!Number.isInteger(rotaId) || rotaId < 1) {
+        throw new BadRequestException('rotaId inválido.');
+      }
+    }
+
+    const where: {
+      nome?: ReturnType<typeof ILike>;
+      rotaId?: number;
+    } = {};
+
+    if (filtros.nome) {
+      where.nome = ILike(`%${filtros.nome}%`);
+    }
+
+    if (rotaId !== undefined) {
+      where.rotaId = rotaId;
+    }
 
     const [dados, total] = await this.paradaRepository.findAndCount({
       where,
@@ -72,13 +95,43 @@ export class ParadasService {
 
   async create(data: CreateParadaDto) {
     const parada = this.paradaRepository.create(data);
+
+    if (data.rotaId != null) {
+      const rota = await this.rotaRepository.findOneBy({
+        id: data.rotaId,
+      });
+
+      if (!rota) {
+        throw new NotFoundException('Rota não encontrada');
+      }
+
+      parada.rota = rota;
+    }
+
     return this.paradaRepository.save(parada);
   }
 
   async update(id: number, data: UpdateParadaDto) {
     const parada = await this.findOne(id);
+    const { rotaId, ...dados } = data;
 
-    this.paradaRepository.merge(parada, data);
+    this.paradaRepository.merge(parada, dados);
+
+    if (rotaId !== undefined) {
+      if (rotaId === null) {
+        parada.rota = null;
+      } else {
+        const rota = await this.rotaRepository.findOneBy({
+          id: rotaId,
+        });
+
+        if (!rota) {
+          throw new NotFoundException('Rota não encontrada');
+        }
+
+        parada.rota = rota;
+      }
+    }
 
     return this.paradaRepository.save(parada);
   }

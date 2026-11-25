@@ -18,6 +18,7 @@ import { RotasModule } from './rotas/rotas.module.js';
 import { OnibusModule } from './onibus/onibus.module.js';
 import { LocalizacaoModule } from './localizacao/localizacao.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
+import { FavoritosModule } from './favoritos/favoritos.module.js';
 
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -54,6 +55,7 @@ import { AppService } from './app.service.js';
     RotasModule,
     LocalizacaoModule,
     UsuariosModule,
+    FavoritosModule,
   ],
   controllers: [AppController],
   providers: [
