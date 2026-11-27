@@ -31,17 +31,15 @@ async function main() {
     const favoritaRepository =
       AppDataSource.getRepository(UsuarioFavoritaRota);
 
-    // 1. Criar ou atualizar rotas
+    // 1. Criar rotas sem alterar as existentes
     async function obterRota(nome: string, descricao: string) {
-      let rota = await rotaRepository.findOneBy({ nome });
+      const rota = await rotaRepository.findOneBy({ nome });
 
-      if (rota) {
-        rota.descricao = descricao;
-      } else {
-        rota = rotaRepository.create({ nome, descricao });
-      }
+      if (rota) return rota;
 
-      return rotaRepository.save(rota);
+      return rotaRepository.save(
+        rotaRepository.create({ nome, descricao }),
+      );
     }
 
     const rotaCentro = await obterRota(
@@ -54,30 +52,26 @@ async function main() {
       'Trajeto destinado aos estudantes universitários.',
     );
 
-    // 2. Criar ou atualizar ônibus
+    // 2. Criar ônibus sem alterar os existentes
     async function obterOnibus(
       placa: string,
       identificacaoRFID: string,
       modelo: string,
       rotaId: number,
     ) {
-      let onibus = await onibusRepository.findOneBy({ placa });
+      const onibus = await onibusRepository.findOneBy({ placa });
 
-      if (onibus) {
-        onibus.modelo = modelo;
-        onibus.status = StatusOnibus.ATIVO;
-        onibus.rotaId = rotaId;
-      } else {
-        onibus = onibusRepository.create({
+      if (onibus) return onibus;
+
+      return onibusRepository.save(
+        onibusRepository.create({
           placa,
           identificacaoRFID,
           modelo,
           status: StatusOnibus.ATIVO,
           rotaId,
-        });
-      }
-
-      return onibusRepository.save(onibus);
+        }),
+      );
     }
 
     const onibus1 = await obterOnibus(
@@ -94,31 +88,28 @@ async function main() {
       rotaUniversidade.id,
     );
 
-    // 3. Criar ou atualizar paradas
+    // 3. Criar paradas sem alterar as existentes
     async function obterParada(
       nome: string,
       latitude: number,
       longitude: number,
       rotaId: number,
     ) {
-      let parada = await paradaRepository.findOneBy({
+      const parada = await paradaRepository.findOneBy({
         nome,
         rotaId,
       });
 
-      if (parada) {
-        parada.latitude = latitude;
-        parada.longitude = longitude;
-      } else {
-        parada = paradaRepository.create({
+      if (parada) return parada;
+
+      return paradaRepository.save(
+        paradaRepository.create({
           nome,
           latitude,
           longitude,
           rotaId,
-        });
-      }
-
-      return paradaRepository.save(parada);
+        }),
+      );
     }
 
     await obterParada(
@@ -149,7 +140,7 @@ async function main() {
       rotaUniversidade.id,
     );
 
-    // 4. Criar ou atualizar localizações
+    // 4. Criar localizações sem alterar o histórico existente
     const dataRegistro = new Date('2026-11-06T12:00:00.000Z');
 
     async function obterLocalizacao(
@@ -157,30 +148,27 @@ async function main() {
       latitude: number,
       longitude: number,
     ) {
-      let localizacao = await localizacaoRepository.findOneBy({
+      const localizacao = await localizacaoRepository.findOneBy({
         onibusId,
         registradaEm: dataRegistro,
       });
 
-      if (localizacao) {
-        localizacao.latitude = latitude;
-        localizacao.longitude = longitude;
-      } else {
-        localizacao = localizacaoRepository.create({
+      if (localizacao) return localizacao;
+
+      return localizacaoRepository.save(
+        localizacaoRepository.create({
           latitude,
           longitude,
           registradaEm: dataRegistro,
           onibusId,
-        });
-      }
-
-      return localizacaoRepository.save(localizacao);
+        }),
+      );
     }
 
     await obterLocalizacao(onibus1.id, -8.2835, -35.9765);
     await obterLocalizacao(onibus2.id, -8.2905, -35.9805);
 
-    // 5. Criar ou atualizar usuários
+    // 5. Criar usuários sem alterar os existentes
     const senhaHash = await bcrypt.hash('SenhaDemo123!', 10);
 
     async function obterUsuario(
@@ -188,22 +176,18 @@ async function main() {
       email: string,
       tipo: TipoUsuario,
     ) {
-      let usuario = await usuarioRepository.findOneBy({ email });
+      const usuario = await usuarioRepository.findOneBy({ email });
 
-      if (usuario) {
-        usuario.nome = nome;
-        usuario.senha = senhaHash;
-        usuario.tipo = tipo;
-      } else {
-        usuario = usuarioRepository.create({
+      if (usuario) return usuario;
+
+      return usuarioRepository.save(
+        usuarioRepository.create({
           nome,
           email,
           senha: senhaHash,
           tipo,
-        });
-      }
-
-      return usuarioRepository.save(usuario);
+        }),
+      );
     }
 
     const aluno = await obterUsuario(
@@ -218,34 +202,30 @@ async function main() {
       TipoUsuario.RESPONSAVEL,
     );
 
-    // 6. Criar ou atualizar rotas favoritas
+    // 6. Criar favoritos sem alterar os existentes
     async function obterFavorita(
       usuarioId: number,
       rotaId: number,
       notificarAtraso: boolean,
     ) {
-      let favorita = await favoritaRepository.findOneBy({
+      const favorita = await favoritaRepository.findOneBy({
         usuarioId,
         rotaId,
       });
 
-      if (favorita) {
-        favorita.notificarAtraso = notificarAtraso;
-      } else {
-        favorita = favoritaRepository.create({
+      if (favorita) return favorita;
+
+      return favoritaRepository.save(
+        favoritaRepository.create({
           usuarioId,
           rotaId,
           notificarAtraso,
-        });
-      }
-
-      return favoritaRepository.save(favorita);
+        }),
+      );
     }
 
     await obterFavorita(aluno.id, rotaCentro.id, true);
-
     await obterFavorita(aluno.id, rotaUniversidade.id, false);
-
     await obterFavorita(responsavel.id, rotaCentro.id, true);
 
     console.log('Seed concluído com sucesso!');
