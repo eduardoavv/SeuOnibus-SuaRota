@@ -141,4 +141,17 @@ export class UsuariosService {
       mensagem: 'Usuário excluído com sucesso.',
     };
   }
+  async buscarPorEmail(email: string) {
+  const usuario = await this.usuarioRepository.findOne({
+    where: { email },
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+      tipo: true,
+    },
+  });
+
+  return usuario;
+}
 }
