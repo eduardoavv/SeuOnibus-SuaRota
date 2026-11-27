@@ -15,7 +15,8 @@ import {
   import { LocalizacaoService } from './localizacao.service.js';
   import { CreateLocalizacaoDto } from './dto/create-localizacao.dto.js';
   import { UpdateLocalizacaoDto } from './dto/update-localizacao.dto.js';
-  
+  import { CreateLocalizacaoRfidDto } from './dto/create-localizacao-rfid.dto.js';
+
   @Controller('localizacoes')
   export class LocalizacaoController {
     constructor(
@@ -25,6 +26,16 @@ import {
     @Post()
     create(@Body() data: CreateLocalizacaoDto) {
       return this.localizacaoService.create(data);
+    }
+    @Post('rfid')
+    createByRfid(@Body() data: CreateLocalizacaoRfidDto) {
+      return this.localizacaoService.createByRfid(data);
+    }
+    @Get('rfid/:identificacaoRFID/ultima')
+    findLatestByRfid(
+      @Param('identificacaoRFID') identificacaoRFID: string,
+    ) {
+      return this.localizacaoService.findLatestByRfid(identificacaoRFID);
     }
   
     @Get()

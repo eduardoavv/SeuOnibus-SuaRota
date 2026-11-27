@@ -11,6 +11,7 @@ import { Localizacao } from '../database/entities/localizacao.entity.js';
 import { Onibus } from '../database/entities/onibus.entity.js';
 import { CreateLocalizacaoDto } from './dto/create-localizacao.dto.js';
 import { UpdateLocalizacaoDto } from './dto/update-localizacao.dto.js';
+import { CreateLocalizacaoRfidDto } from './dto/create-localizacao-rfid.dto.js';
 
 interface FiltrosLocalizacao {
   page?: string;
@@ -41,6 +42,46 @@ export class LocalizacaoService {
 
     return this.localizacaoRepository.save(localizacao);
   }
+  async createByRfid(data: CreateLocalizacaoRfidDto) {
+  const onibus = await this.onibusRepository.findOneBy({
+    identificacaoRFID: data.identificacaoRFID,
+  });
+
+  if (!onibus) {
+    throw new NotFoundException('Ônibus não encontrado para esse RFID');
+  }
+
+  const localizacao = this.localizacaoRepository.create({
+    latitude: data.latitude,
+    longitude: data.longitude,
+    onibusId: onibus.id,
+  });
+
+  return this.localizacaoRepository.save(localizacao);
+}
+async findLatestByRfid(identificacaoRFID: string) {
+  const onibus = await this.onibusRepository.findOneBy({
+    identificacaoRFID,
+  });
+
+  if (!onibus) {
+    throw new NotFoundException('Ônibus não encontrado para esse RFID');
+  }
+
+  const localizacao = await this.localizacaoRepository.findOne({
+    where: { onibusId: onibus.id },
+    relations: { onibus: true },
+    order: { registradaEm: 'DESC' },
+  });
+
+  if (!localizacao) {
+    throw new NotFoundException(
+      'Nenhuma localização encontrada para esse ônibus',
+    );
+  }
+
+  return localizacao;
+}
 
   async findAll(filtros: FiltrosLocalizacao = {}) {
     const page =
